@@ -4,7 +4,7 @@ import requests
 app = Flask(__name__)
 
 # Bu, app.py dosyanızın çalıştığı adres (Render.com)
-API_URL = "https://hello-cloud4.onrender.com"
+API_URL = "https://hello-cloud1-eksl.onrender.com"
 
 HTML = """
 <!doctype html>
