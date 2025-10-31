@@ -10,7 +10,7 @@ HTML = """
 <!doctype html>
 <html>
 <head>
-<title>Mikro Hizmetli Selam! (İsim & Şehir)</title>
+<title>Mikro Hizmetli Selam! (Tek Buton)</title>
 <style>
     body { 
         font-family: Arial, sans-serif; 
@@ -22,25 +22,21 @@ HTML = """
         text-align: center;
         color: #2c3e50;
     }
-    /* Ana Taşıyıcı: Kutuları yan yana dizer */
     .container {
         display: flex;
-        justify-content: space-around; /* Kutular arasına eşit boşluk bırakır */
-        flex-wrap: wrap; /* Küçük ekranlarda alt alta inmeyi sağlar */
-        gap: 20px; /* Kutular arasında boşluk bırakır */
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 20px;
     }
-    
-    /* Her bir kutunun stili */
     .box {
-        flex: 1; /* Her kutu eşit yer kaplar */
-        min-width: 300px; /* Minimum genişlik */
+        flex: 1;
+        min-width: 300px;
         background: #ffffff;
         padding: 25px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         text-align: center;
     }
-    
     input[type="text"] { 
         width: 80%;
         padding: 10px; 
@@ -49,17 +45,24 @@ HTML = """
         border: 1px solid #ccc;
         border-radius: 6px;
     }
-    button { 
-        padding: 10px 18px; 
-        background: #4CAF50; 
+    
+    /* Ana Gönder Butonu Stili */
+    .submit-button-container {
+        text-align: center;
+        margin-top: 25px;
+    }
+    .submit-button-container button { 
+        padding: 12px 30px; /* Daha büyük buton */
+        background: #007BFF; /* Farklı bir renk */
         color: white; 
         border: none; 
-        border-radius: 6px; 
+        border-radius: 8px; 
         cursor: pointer; 
-        font-size: 16px;
+        font-size: 18px;
+        font-weight: bold;
     }
-    button:hover {
-        background: #45a049;
+    .submit-button-container button:hover {
+        background: #0056b3;
     }
     
     ul {
@@ -77,66 +80,73 @@ HTML = """
 </head>
 <body>
 <h1>Mikro Hizmetli Selam!</h1>
-<div class="container">
-    
-    <div class="box">
-        <h2>İsim Ekle</h2>
-        <p>Adını yaz</p>
-        <form method="POST">
-            <input type="text" name="isim" placeholder="Adını yaz" required>
-            <button type="submit">Gönder</button>
-        </form>
-        <h3>Ziyaretçiler:</h3>
-        <ul>
-            {% for ad in isimler %}
-                <li>{{ ad }}</li>
-            {% endfor %}
-        </ul>
+
+<form method="POST">
+    <div class="container">
+        
+        <div class="box">
+            <h2>İsim Ekle</h2>
+            <p>Adını yaz</p>
+            <input type="text" name="isim" placeholder="Adını yaz">
+            
+            <h3>Ziyaretçiler:</h3>
+            <ul>
+                {% for ad in isimler %}
+                    <li>{{ ad }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="box">
+            <h2>Şehir Ekle</h2>
+            <p>Şehrini yaz</p>
+            <input type="text" name="sehir" placeholder="Şehrini yaz">
+            
+            <h3>Eklenen Şehirler:</h3>
+            <ul>
+                {% for sehir in sehirler %}
+                    <li>{{ sehir }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
     </div>
     
-    <div class="box">
-        <h2>Şehir Ekle</h2>
-        <p>Şehrini yaz</p>
-        <form method="POST">
-            <input type="text" name="sehir" placeholder="Şehrini yaz" required>
-            <button type="submit">Gönder</button>
-        </form>
-        <h3>Eklenen Şehirler:</h3>
-        <ul>
-            {% for sehir in sehirler %}
-                <li>{{ sehir }}</li>
-            {% endfor %}
-        </ul>
+    <div class="submit-button-container">
+        <button type="submit">Gönder</button>
     </div>
-    
-</div>
-</body>
+
+</form> </body>
 </html>
 """
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    # --- POST Metodu: Formlardan Biri Gönderildiğinde ---
+    # --- POST Metodu: Tek form gönderildiğinde ---
     if request.method == "POST":
-        # Hangi formun gönderildiğini kontrol et
-        if "isim" in request.form:
-            isim = request.form.get("isim")
+        
+        # 1. İsim alanını kontrol et
+        isim = request.form.get("isim")
+        # Eğer 'isim' alanı boş değilse API'ye gönder
+        if isim: 
             try:
                 requests.post(API_URL + "/ziyaretciler", json={"isim": isim})
             except requests.exceptions.RequestException as e:
                 print(f"Hata (POST /ziyaretciler): {e}")
                 
-        elif "sehir" in request.form:
-            sehir = request.form.get("sehir")
+        # 2. Şehir alanını kontrol et (Burada 'elif' KULLANILMAMALI)
+        sehir = request.form.get("sehir")
+        # Eğer 'sehir' alanı boş değilse API'ye gönder
+        if sehir: 
             try:
                 requests.post(API_URL + "/sehirler", json={"sehir": sehir})
             except requests.exceptions.RequestException as e:
                 print(f"Hata (POST /sehirler): {e}")
         
-        # Her iki durumda da işlem sonrası ana sayfaya yönlendir
+        # Her iki kontrol bittikten sonra sayfayı yenile
         return redirect("/")
 
-    # --- GET Metodu: Sayfa Yüklendiğinde ---
+    # --- GET Metodu: Sayfa Yüklendiğinde (Bu kısım aynı kaldı) ---
     
     # 1. İsim listesini al
     isimler = []
