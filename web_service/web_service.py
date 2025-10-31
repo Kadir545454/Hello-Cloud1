@@ -10,7 +10,7 @@ HTML = """
 <!doctype html>
 <html>
 <head>
-<title>Mikro Hizmetli Selam! (Tek Buton)</title>
+<title>Mikro Hizmetli Selam! (Tek Panel)</title>
 <style>
     body { 
         font-family: Arial, sans-serif; 
@@ -22,26 +22,23 @@ HTML = """
         text-align: center;
         color: #2c3e50;
     }
-    .container {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-    .box {
-        flex: 1;
-        min-width: 300px;
+    
+    /* TEK ANA PANELİN STİLİ */
+    .main-panel {
+        max-width: 600px; /* Panelin maksimum genişliği */
+        margin: 20px auto; /* Paneli yatayda ortalar */
         background: #ffffff;
-        padding: 25px;
+        padding: 30px;
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         text-align: center;
     }
+    
     input[type="text"] { 
-        width: 80%;
-        padding: 10px; 
+        width: 90%; /* Panelin içine sığsın */
+        padding: 12px; 
         font-size: 16px; 
-        margin-bottom: 10px;
+        margin-bottom: 20px; /* Girişler arası boşluk */
         border: 1px solid #ccc;
         border-radius: 6px;
     }
@@ -49,11 +46,12 @@ HTML = """
     /* Ana Gönder Butonu Stili */
     .submit-button-container {
         text-align: center;
-        margin-top: 25px;
+        margin-top: 15px;
+        margin-bottom: 30px; /* Buton ile listeler arası boşluk */
     }
     .submit-button-container button { 
-        padding: 12px 30px; /* Daha büyük buton */
-        background: #007BFF; /* Farklı bir renk */
+        padding: 12px 30px; 
+        background: #007BFF; 
         color: white; 
         border: none; 
         border-radius: 8px; 
@@ -76,49 +74,59 @@ HTML = """
         border-radius: 5px; 
         border: 1px solid #eee;
     }
+    
+    /* Listeler arasına ayırıcı çizgi ekle */
+    .list-divider {
+        border-top: 1px solid #eee;
+        margin: 30px 0;
+    }
+
 </style>
 </head>
 <body>
 <h1>Mikro Hizmetli Selam!</h1>
 
-<form method="POST">
-    <div class="container">
+<div class="main-panel">
+    <form method="POST">
         
-        <div class="box">
-            <h2>İsim Ekle</h2>
-            <p>Adını yaz</p>
-            <input type="text" name="isim" placeholder="Adını yaz">
-            
-            <h3>Ziyaretçiler:</h3>
-            <ul>
-                {% for ad in isimler %}
-                    <li>{{ ad }}</li>
-                {% endfor %}
-            </ul>
+        <h2>İsim Ekle</h2>
+        <p>Adını yaz</p>
+        <input type="text" name="isim" placeholder="Adını yaz">
+        
+        <h2>Şehir Ekle</h2>
+        <p>Şehrini yaz</p>
+        <input type="text" name="sehir" placeholder="Şehrini yaz">
+        
+        <div class="submit-button-container">
+            <button type="submit">Gönder</button>
         </div>
-        
-        <div class="box">
-            <h2>Şehir Ekle</h2>
-            <p>Şehrini yaz</p>
-            <input type="text" name="sehir" placeholder="Şehrini yaz">
-            
-            <h3>Eklenen Şehirler:</h3>
-            <ul>
-                {% for sehir in sehirler %}
-                    <li>{{ sehir }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        
-    </div>
-    
-    <div class="submit-button-container">
-        <button type="submit">Gönder</button>
-    </div>
 
-</form> </body>
+        <div class="list-divider"></div>
+
+        <h3>Ziyaretçiler:</h3>
+        <ul>
+            {% for ad in isimler %}
+                <li>{{ ad }}</li>
+            {% endfor %}
+        </ul>
+        
+        <h3>Eklenen Şehirler:</h3>
+        <ul>
+            {% for sehir in sehirler %}
+                <li>{{ sehir }}</li>
+            {% endfor %}
+        </ul>
+        
+    </form>
+</div>
+
+</body>
 </html>
 """
+
+# --- PYTHON (FLASK) KODU ---
+# Bu kısımda hiçbir değişiklik yapmaya gerek yok,
+# bir önceki "tek gönder tuşu" ile aynı mantıkta çalışıyor.
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -127,26 +135,23 @@ def index():
         
         # 1. İsim alanını kontrol et
         isim = request.form.get("isim")
-        # Eğer 'isim' alanı boş değilse API'ye gönder
         if isim: 
             try:
-                requests.post(API_URL + "/ziyaretciler", json={"isim": isim})
+                requests.post(API_URL + "/ziyaretçiler", json={"isim": isim})
             except requests.exceptions.RequestException as e:
                 print(f"Hata (POST /ziyaretciler): {e}")
                 
-        # 2. Şehir alanını kontrol et (Burada 'elif' KULLANILMAMALI)
+        # 2. Şehir alanını kontrol et
         sehir = request.form.get("sehir")
-        # Eğer 'sehir' alanı boş değilse API'ye gönder
         if sehir: 
             try:
                 requests.post(API_URL + "/sehirler", json={"sehir": sehir})
             except requests.exceptions.RequestException as e:
                 print(f"Hata (POST /sehirler): {e}")
         
-        # Her iki kontrol bittikten sonra sayfayı yenile
         return redirect("/")
 
-    # --- GET Metodu: Sayfa Yüklendiğinde (Bu kısım aynı kaldı) ---
+    # --- GET Metodu: Sayfa Yüklendiğinde ---
     
     # 1. İsim listesini al
     isimler = []
