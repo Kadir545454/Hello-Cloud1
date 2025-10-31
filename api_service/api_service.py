@@ -8,7 +8,7 @@ CORS(app) # CORS ayarı doğru
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://clooud2_2_dp_user:lT7t7P1OWoTiIINtSuPoE3VrRF8IAGBr@dpg-d3ub82re5dus739hupo0-a.oregon-postgres.render.com/clooud2_2_dp"
+    "postgresql://kadir:yWNXnRVYLNuQfsgYhyfeIboWDFXPMhiY@dpg-d3tjgf9r0fns73ahsth0-a.oregon-postgres.render.com/hello_cloud2_db_ryty"
 )
 
 def connect_db():
